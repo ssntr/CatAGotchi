@@ -7,6 +7,7 @@
 #include <thread>
 #include "Catagotchi.h"
 #include "Physics.h"
+#include "InputHandler.h"
 #include "Assets.h"
 
 // Yhteinen mutex Box2D-kutsuille
@@ -60,6 +61,8 @@ int main() {
     std::atomic<bool> running{ true };
     startPhysicsThread(worldId, running, worldMu);
 
+    InputHandler inputHandler(cat, food, poop, worldId, worldMu, virtualCols, ascii_height);
+
     while (running.load()) {
         clear();
         getmaxyx(stdscr, termRows, termCols);
@@ -87,24 +90,7 @@ int main() {
 
         refresh();
 
-        // --- Input
-        int ch = getch();
-        if (ch == 'q' || ch == 'Q') running = false;
-        else if ((ch == 'f' || ch == 'F') && (!food || !food->active)) {
-            std::lock_guard<std::mutex> lock(worldMu);
-            float fx = (float)(4 + rand() % (virtualCols - 8));
-            // Vältä spawnata kakkan päälle
-            if (poop && poop->active) {
-                if (fx >= poop->x - 1 && fx <= poop->x + 1)
-                    fx = poop->x + 2.0f;
-            }
-            food = Food::spawn(worldId, fx, (float)(ascii_height + 1));
-        }
-        else if ((ch == 'c' || ch == 'C') && poop && poop->active) {
-            std::lock_guard<std::mutex> lock(worldMu);
-            b2DestroyBody(poop->bodyId);
-            poop->active = false;
-        }
+        inputHandler.handleInput(running);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
