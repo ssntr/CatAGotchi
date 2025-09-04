@@ -2,8 +2,18 @@
 #include <curses.h>
 #include <cmath>
 
-// -------------------- Cat --------------------
+/**
+ * @file Catagotchi.cpp
+ * @brief Implementation of Cat, Food, and Poop classes.
+ */
 
+ /**
+  * @brief Spawn a new Cat in the Box2D world.
+  * @param worldId Box2D world identifier
+  * @param x Initial x-position
+  * @param y Initial y-position
+  * @return Shared pointer to the new Cat
+  */
 CatPtr Cat::spawn(b2WorldId worldId, float x, float y) {
     CatPtr cat = std::make_shared<Cat>();
     b2BodyDef bd = b2DefaultBodyDef();
@@ -20,6 +30,12 @@ CatPtr Cat::spawn(b2WorldId worldId, float x, float y) {
     return cat;
 }
 
+/**
+ * @brief Move the Cat toward the Food while avoiding Poop.
+ * @param food Shared pointer to Food object
+ * @param poop Shared pointer to Poop object
+ * @param worldWidth Width of the Box2D world
+ */
 void Cat::moveToward(FoodPtr food, PoopPtr poop, float worldWidth) {
     b2Vec2 cpos = b2Body_GetPosition(bodyId);
     float dx = 0.0f, speed = 1.5f;
@@ -28,7 +44,7 @@ void Cat::moveToward(FoodPtr food, PoopPtr poop, float worldWidth) {
         float foodX = b2Body_GetPosition(food->bodyId).x;
 
         if (poop && poop->active) {
-            // Väistä kakkaa vain jos se on väistettävissä
+            // Avoid poop if it is between Cat and Food
             if ((cpos.x < poop->x && foodX > poop->x) ||
                 (cpos.x > poop->x && foodX < poop->x)) {
                 dx = (cpos.x < poop->x) ? -0.5f : 0.5f;
@@ -49,8 +65,16 @@ void Cat::moveToward(FoodPtr food, PoopPtr poop, float worldWidth) {
     b2Body_SetLinearVelocity(bodyId, { dx * speed, 0.0f });
 }
 
+/**
+ * @brief Attempt to eat the food and possibly spawn poop.
+ * @param food Reference to shared pointer to Food
+ * @param poop Reference to shared pointer to Poop
+ * @param worldId Box2D world identifier
+ * @param worldWidth Width of the Box2D world
+ */
 void Cat::tryEat(FoodPtr& food, PoopPtr& poop, b2WorldId worldId, float worldWidth) {
     if (!food || !food->active) return;
+
     b2Vec2 cpos = b2Body_GetPosition(bodyId);
     b2Vec2 fpos = b2Body_GetPosition(food->bodyId);
 
@@ -60,13 +84,13 @@ void Cat::tryEat(FoodPtr& food, PoopPtr& poop, b2WorldId worldId, float worldWid
 
         eaten++;
         if (eaten >= 5 && (!poop || !poop->active)) {
+            //Here, the poop is zzpawned and the cat is moved away so it doesn't stand on it :3
             poop = Poop::spawn(worldId, cpos);
             eaten = 0;
 
-            float impulse = 450.0f;
+            float impulse = (cpos.x < worldWidth / 2) ? -450.0f : 450.0f;
             b2Body_ApplyLinearImpulseToCenter(bodyId, { impulse, 0.0f }, true);
 
-            // Reunoilla pehmennys
             if (cpos.x < 3.0f)
                 b2Body_SetLinearVelocity(bodyId, { fabsf(impulse) * 0.01f, 0.0f });
             else if (cpos.x > worldWidth - 3.0f)
@@ -75,6 +99,12 @@ void Cat::tryEat(FoodPtr& food, PoopPtr& poop, b2WorldId worldId, float worldWid
     }
 }
 
+/**
+ * @brief Draw the Cat using ASCII in terminal.
+ * @param xOffset Horizontal offset in terminal
+ * @param termCols Terminal width
+ * @param termRows Terminal height
+ */
 void Cat::draw(int xOffset, int termCols, int termRows) {
     b2Vec2 pos = b2Body_GetPosition(bodyId);
     int x = xOffset + (int)pos.x;
@@ -83,8 +113,14 @@ void Cat::draw(int xOffset, int termCols, int termRows) {
         mvprintw(y, x, "%s", sprite);
 }
 
-// -------------------- Food --------------------
 
+/**
+ * @brief Spawn a new Food in the Box2D world.
+ * @param worldId Box2D world identifier
+ * @param x Initial x-position
+ * @param y Initial y-position
+ * @return Shared pointer to the new Food
+ */
 FoodPtr Food::spawn(b2WorldId worldId, float x, float y) {
     FoodPtr food = std::make_shared<Food>();
     b2BodyDef fd = b2DefaultBodyDef();
@@ -103,14 +139,23 @@ FoodPtr Food::spawn(b2WorldId worldId, float x, float y) {
     return food;
 }
 
+/**
+ * @brief Draw the Food using ASCII in terminal.
+ * @param xOffset Horizontal offset in terminal
+ * @param termRows Terminal height
+ */
 void Food::draw(int xOffset, int termRows) {
     if (!active) return;
     b2Vec2 pos = b2Body_GetPosition(bodyId);
     mvaddch((int)pos.y, xOffset + (int)pos.x, *sprite);
 }
 
-// -------------------- Poop --------------------
-
+/**
+ * @brief Spawn a new Poop in the Box2D world.
+ * @param worldId Box2D world identifier
+ * @param pos Position to spawn the Poop
+ * @return Shared pointer to the new Poop
+ */
 PoopPtr Poop::spawn(b2WorldId worldId, const b2Vec2& pos) {
     PoopPtr poop = std::make_shared<Poop>();
     b2BodyDef pd = b2DefaultBodyDef();
@@ -122,6 +167,11 @@ PoopPtr Poop::spawn(b2WorldId worldId, const b2Vec2& pos) {
     return poop;
 }
 
+/**
+ * @brief Draw the Poop using ASCII in terminal.
+ * @param xOffset Horizontal offset in terminal
+ * @param termRows Terminal height
+ */
 void Poop::draw(int xOffset, int termRows) {
     if (!active) return;
     mvaddch(termRows - 3, xOffset + (int)x, *sprite);

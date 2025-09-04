@@ -2,6 +2,17 @@
 #include <box2d/box2d.h>
 #include <memory>
 
+
+/**
+ * @file Catagotchi.h
+ * @brief Definitions of Cat, Food, and Poop classes
+ *
+ * This file defines the main game objects with Box2D physics.
+ * Course concepts demonstrated:
+ * - Smart pointers (shared_ptr)
+ * - ASCII graphics with PDCurses
+ */
+
 struct Food;
 struct Poop;
 
@@ -20,6 +31,7 @@ struct Cat {
 };
 using CatPtr = std::shared_ptr<Cat>;
 
+
 struct Food {
     b2BodyId bodyId{};
     bool active = false;
@@ -29,6 +41,7 @@ struct Food {
     void draw(int xOffset, int termRows);
 };
 using FoodPtr = std::shared_ptr<Food>;
+
 
 struct Poop {
     b2BodyId bodyId{};

@@ -3,10 +3,12 @@
 #include <chrono>
 
 /**
- * @brief Fysiikkas‰ie Box2D:lle
- * @param worldId Box2D-maailman tunniste
- * @param running Atominen lippu, jolla voidaan pys‰ytt‰‰ s‰ie
- * @param worldMu Mutex Box2D-kutsujen sarjallistamiseen
+ * @brief Starts a separate thread to step the Box2D world
+ * @param worldId Box2D world
+ * @param running Atomic flag to control the loop
+ * @param worldMu Mutex to serialize Box2D calls
+ *
+ * Demonstrates multi-threading with a lambda function.
  */
 void startPhysicsThread(b2WorldId worldId, std::atomic<bool>& running, std::mutex& worldMu) {
     const float timeStep = 1.0f / 60.0f;
