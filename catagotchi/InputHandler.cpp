@@ -39,7 +39,7 @@ void InputHandler::spawnFood() {
     std::lock_guard<std::mutex> lock(worldMu);
     float fx = static_cast<float>(4 + rand() % (virtualCols - 8));
 
-    // Älä spawnata kakkan päälle
+    // Don't let food 2 drop on poop!
     if (poop && poop->active && fx >= poop->x - 1 && fx <= poop->x + 1)
         fx = poop->x + 2.0f;
 
