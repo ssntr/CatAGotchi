@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClInclude Include="Assets.h" />
     <ClInclude Include="Catagotchi.h" />
+    <ClInclude Include="Documentation.h" />
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="Physics.h" />
   </ItemGroup>

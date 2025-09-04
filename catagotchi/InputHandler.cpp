@@ -4,6 +4,10 @@
 #include <memory>
 #include <box2d/box2d.h>
 
+/**
+ * @brief Constructs an InputHandler
+ */
+
 InputHandler::InputHandler(CatPtr cat, FoodPtr& food, PoopPtr& poop,
     b2WorldId worldId, std::mutex& worldMu,
     int virtualCols, int asciiHeight)
@@ -12,6 +16,9 @@ InputHandler::InputHandler(CatPtr cat, FoodPtr& food, PoopPtr& poop,
     virtualCols(virtualCols), asciiHeight(asciiHeight) {
 }
 
+/**
+ * @brief Checks keypresses and performs actions
+ */
 void InputHandler::handleInput(std::atomic<bool>& running) {
     int ch = getch();
     if (ch == 'q' || ch == 'Q') {
@@ -25,6 +32,9 @@ void InputHandler::handleInput(std::atomic<bool>& running) {
     }
 }
 
+/**
+ * @brief Spawns food safely in the Box2D world
+ */
 void InputHandler::spawnFood() {
     std::lock_guard<std::mutex> lock(worldMu);
     float fx = static_cast<float>(4 + rand() % (virtualCols - 8));
@@ -36,6 +46,9 @@ void InputHandler::spawnFood() {
     food = Food::spawn(worldId, fx, static_cast<float>(asciiHeight + 1));
 }
 
+/**
+ * @brief Removes poop safely from the Box2D world
+ */
 void InputHandler::cleanPoop() {
     std::lock_guard<std::mutex> lock(worldMu);
     b2DestroyBody(poop->bodyId);

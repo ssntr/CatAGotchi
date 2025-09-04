@@ -5,9 +5,9 @@
 
 /**
  * @file Physics.h
- * @brief Functions for physics thread management
+ * @brief A threadable function for physics management
  *
- * Contains a function to start a Box2D physics thread
+ * Contains a function to start a Box2D physics thread loop
  * demonstrating multi-threading
  */
 void startPhysicsThread(b2WorldId worldId, std::atomic<bool>& running, std::mutex& worldMu);

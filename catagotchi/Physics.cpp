@@ -3,7 +3,7 @@
 #include <chrono>
 
 /**
- * @brief Starts a separate thread to step the Box2D world
+ * @brief Starts a separate thread to advance the Box2D world
  * @param worldId Box2D world
  * @param running Atomic flag to control the loop
  * @param worldMu Mutex to serialize Box2D calls
